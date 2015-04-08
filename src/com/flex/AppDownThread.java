@@ -41,9 +41,10 @@ public class AppDownThread extends Thread {
 	public void run(){
 		if (remoteFileExists(mAppUrl) == true) {
 			if (true == downloadApk()){
-				LogU.Log(tag, mAppUrl+"下载成功");
+				LogU.Log(tag, mAppUrl+" download success,report!");
+				
 			}else{
-				LogU.Log(tag, mAppUrl+"下载失败");
+				LogU.Log(tag, mAppUrl+" download failed.");
 			}
 		}
 	}

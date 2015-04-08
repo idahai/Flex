@@ -11,13 +11,17 @@ import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 import android.app.ActivityManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 
 public class FuncMod {
 	public static FuncMod mCmInstance;
@@ -42,8 +46,7 @@ public class FuncMod {
 		int _type = (ConnectivityManager.TYPE_WIFI)
 				| (ConnectivityManager.TYPE_MOBILE);
 		try {
-			ConnectivityManager cm = (ConnectivityManager) context
-					.getSystemService(Context.CONNECTIVITY_SERVICE);
+			ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 			NetworkInfo mNetworkInfo = cm.getActiveNetworkInfo();
 			if (mNetworkInfo != null && mNetworkInfo.isAvailable() == true
 					&& mNetworkInfo.isConnected() == true
@@ -58,8 +61,7 @@ public class FuncMod {
 	}
 
 	public int getNetWorkType(Context context) {
-		ConnectivityManager connectMgr = (ConnectivityManager) context
-				.getSystemService(Context.CONNECTIVITY_SERVICE);
+		ConnectivityManager connectMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo info = connectMgr.getActiveNetworkInfo();
 		return info.getType();
 	}
@@ -69,8 +71,7 @@ public class FuncMod {
 			return;
 		}
 
-		SharedPreferences sp = context.getSharedPreferences(
-				DataDef.SHARE_PREFER, 0);
+		SharedPreferences sp = context.getSharedPreferences(DataDef.SHARE_PREFER, 0);
 		sp.edit().putInt(DataDef.KEY_DATA_SEND_STATE, value).commit();
 		sp.edit().putString(DataDef.KEY_DATA_REPORT_DATA, params).commit();
 		return;
@@ -80,8 +81,7 @@ public class FuncMod {
 		if (context == null) {
 			return "";
 		}
-		SharedPreferences sp = context.getSharedPreferences(
-				DataDef.SHARE_PREFER, 0);
+		SharedPreferences sp = context.getSharedPreferences(DataDef.SHARE_PREFER, 0);
 		int value = sp.getInt(DataDef.SHARE_PREFER, 0);
 		if (value == 0) {
 			return sp.getString(DataDef.KEY_DATA_REPORT_DATA, "");
@@ -228,14 +228,14 @@ public class FuncMod {
 	public void getPicturesAndFillImageViews(Context context ,String data) {
 		String[] allPicUrlInfo = split(data, "\\n");
 		if (DataDef.gPictureDatas == null) {
-			LogU.Log(tag, "DataDef.gPictureDatasÎª¿Õ£¬³õÊ¼»¯...");
+			LogU.Log(tag, "DataDef.gPictureDatasÎªï¿½Õ£ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½...");
 			DataDef.gPictureDatas = new ArrayList<PictureData>();
 			downloadPictures(allPicUrlInfo);
 		} else if (DataDef.gPictureDatas.size() == 0) {
-			LogU.Log(tag, "È«¾ÖÍ¼Æ¬»¹Ã»ÓÐÊý¾Ý£¬ÐèÒªÏÂÔØÍ¼Æ¬");
+			LogU.Log(tag, "È«ï¿½ï¿½Í¼Æ¬ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½Ý£ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½Í¼Æ¬");
 			downloadPictures(allPicUrlInfo);
 		} else {
-			LogU.Log(tag, "È«¾ÖÍ¼Æ¬ÒÑ¾­ÓÐÊý¾ÝÁË£¬²»ÐèÒªÏÂÔØÍ¼Æ¬ÁË");
+			LogU.Log(tag, "È«ï¿½ï¿½Í¼Æ¬ï¿½Ñ¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë£ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½Í¼Æ¬ï¿½ï¿½");
 		}
 	}
 
@@ -263,9 +263,9 @@ public class FuncMod {
 			String picrmUrl = _data[0];
 			InputStream picis = readRemotePicture(picrmUrl);
 			if (picis == null) {
-				LogU.Log(tag, picrmUrl + "¶ÁÈ¡Ê§°Ü");
+				LogU.Log(tag, picrmUrl + "ï¿½ï¿½È¡Ê§ï¿½ï¿½");
 			} else {
-				LogU.Log(tag, picrmUrl + "¶ÁÈ¡³É¹¦");
+				LogU.Log(tag, picrmUrl + "ï¿½ï¿½È¡ï¿½É¹ï¿½");
 				PictureData pd = new PictureData();
 				pd.setPicBitmap(picis);
 				pd.setAppDownloadURL(_data[1]);
@@ -298,34 +298,46 @@ public class FuncMod {
 		}
 	}
 	
-	// ¼ÓÃÜ
-		public String getBase64(String str) {
-			byte[] b = null;
-			String s = null;
-			try {
-				b = str.getBytes("utf-8");
-			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
-			}
-			if (b != null) {
-				s = new BASE64Encoder().encode(b);
-			}
-			return s;
+	public boolean isCurrentActivityInBmd(Set<String> bmd,Context context){
+		String topActivityName = getCurrentRunningActivityPackgeName(context);
+		if(bmd.contains(topActivityName) == true){
+			return false;
 		}
-
-		// ½âÃÜ
-		public String getFromBase64(String s) {
-			byte[] b = null;
-			String result = null;
-			if (s != null) {
-				BASE64Decoder decoder = new BASE64Decoder();
-				try {
-					b = decoder.decodeBuffer(s);
-					result = new String(b, "utf-8");
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-			return result;
+		return true;
+	}
+	
+	private String getCurrentRunningActivityPackgeName(Context context) {
+		String packageName = "";
+		ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR1) {
+			List<ActivityManager.RunningAppProcessInfo> tasks = manager.getRunningAppProcesses();
+			packageName = tasks.get(0).processName;
+		} else {
+			List<ActivityManager.RunningTaskInfo> runningTasks = manager.getRunningTasks(1);
+			ActivityManager.RunningTaskInfo runningTaskInfo = runningTasks.get(0);
+			ComponentName topActivity = runningTaskInfo.topActivity;
+			packageName = topActivity.getPackageName();
 		}
+		return packageName;
+	}
+	
+	public List<PictureData> createBackupPictureData(String[] urls){
+		if(urls.length == 0){
+			return null;
+		}
+		List<PictureData> data = new ArrayList<PictureData>();
+		
+		for(String url : urls){
+			PictureData pd = new PictureData();
+			String[] elem = url.split("\\|");
+			InputStream is = readRemotePicture(elem[0]);
+			if(is != null){
+				pd.setPicBitmap(null);
+			}
+			pd.setAppDownloadURL(elem[1]);
+			pd.setPicLevel(elem[2]);
+			data.add(pd);
+		}
+		return data;
+	}
 }

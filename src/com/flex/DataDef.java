@@ -29,6 +29,7 @@ public class DataDef {
 	public static final String VALUE_OPT_TYPE_UNINSTALL = "2";
 	public static final String VALUE_OPT_TYPE_START = "3";
 	public static List<PictureData> gPictureDatas;
+	public static List<PictureData> gBackupElem;
 	public static final int MSG_ID_SHOW_UI = 0x1000;
 	public static final int MSG_ID_NEW_APP_START = 0x1001;
 }

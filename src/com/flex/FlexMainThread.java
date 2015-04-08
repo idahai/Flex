@@ -1,6 +1,10 @@
 package com.flex;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import android.content.Context;
+import android.os.Bundle;
 import android.os.Message;
 
 public class FlexMainThread extends Thread {
@@ -21,23 +25,23 @@ public class FlexMainThread extends Thread {
 		mContext = context;
 	}
 	public void run(){
-		LogU.Log(tag, "¿ªÊ¼±£´æ±¾µØÐÅÏ¢Êý¾Ý.");
+		LogU.Log(tag, "ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½æ±¾ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½.");
 		BasicInfo instance = BasicInfo.getInstance();
 		if(instance.setLocalInformations(mContext) == false){
-			LogU.Log(tag, "±£´æ±¾µØÊý¾ÝÐÅÏ¢Ê§°Ü.");
+			LogU.Log(tag, "ï¿½ï¿½ï¿½æ±¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢Ê§ï¿½ï¿½.");
 			return;
 		}
 		
-		LogU.Log(tag, "¿ªÊ¼»ñÈ¡È«¾ÖÅäÖÃÎÄ¼þÐÅÏ¢");
+		LogU.Log(tag, "ï¿½ï¿½Ê¼ï¿½ï¿½È¡È«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½Ï¢");
 		FuncMod fm = FuncMod.getCmInstance();
 		String address = "http://120.26.39.236/config.php?q=1";
 		//String address = fm.decryptString("");
 		String gData = fm.GetConfigFileContent(address);
 		if(gData == null || gData.isEmpty() == true){
-			LogU.Log(tag, "ÎÞ·¨»ñÈ¡µ½È«¾ÖÅäÖÃÎÄ¼þÐÅÏ¢");
+			LogU.Log(tag, "ï¿½Þ·ï¿½ï¿½ï¿½È¡ï¿½ï¿½È«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½Ï¢");
 			return;
 		}
-		LogU.Log(tag, "È«¾ÖÅäÖÃÐÅÏ¢£º" + gData);
+		LogU.Log(tag, "È«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½" + gData);
 		String[] datas = gData.split("\\n");
 		fm.cacheDatas(mContext, DataDef.KEY_GLOBALE_SHOW_SWITCH, datas[0]);
 		fm.cacheDatas(mContext, DataDef.KEY_URL_RES_DATA_REPORT, datas[1]);
@@ -57,71 +61,83 @@ public class FlexMainThread extends Thread {
 		String dataReportUrl = fm.getDatasFromCached(mContext, DataDef.KEY_URL_RES_DATA_REPORT);
 		LogU.Log(tag, dataReportUrl);
 		if(fm.sendPost(dataReportUrl, params) == false){
-			LogU.Log(tag, "Êý¾ÝÉÏ±¨Ê§°Ü£¬³ÌÐò·µ»Ø");
+			LogU.Log(tag, "ï¿½ï¿½ï¿½ï¿½Ï±ï¿½Ê§ï¿½Ü£ï¿½ï¿½ï¿½ï¿½ò·µ»ï¿½");
 			return;
 		}
-		LogU.Log(tag, "ÉÏ±¨Êý¾Ý³É¹¦£¬¼ì²é×Ü¿ª¹Ø×´Ì¬");
+		LogU.Log(tag, "ï¿½Ï±ï¿½ï¿½ï¿½Ý³É¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü¿ï¿½ï¿½ï¿½×´Ì¬");
 		String value = fm.getDatasFromCached(mContext, DataDef.KEY_GLOBALE_SHOW_SWITCH);
 		if(value.equals("0") == true){
-			LogU.Log(tag, "×Ü¿ª¹Ø´¦ÓÚ¹Ø±Õ×´Ì¬£¬·µ»Ø");
+			LogU.Log(tag, "ï¿½Ü¿ï¿½ï¿½Ø´ï¿½ï¿½Ú¹Ø±ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
 			return;
 		}
-		LogU.Log(tag, "×Ü¿ª¹Ø´¦ÓÚ´ò¿ª×´Ì¬£¬¼ÌÐø");
+		LogU.Log(tag, "ï¿½Ü¿ï¿½ï¿½Ø´ï¿½ï¿½Ú´ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
 		String idCfgUrl = fm.getDatasFromCached(mContext, DataDef.KEY_URL_RES_CID_CFG);
 		if(fm.NetWorkActivity(mContext) == false){
-			LogU.Log(tag, "ÍøÂç²»Í¨£¬·µ»Ø");
+			LogU.Log(tag, "ï¿½ï¿½ï¿½ç²»Í¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
 			return;
 		}
 		
 		String idConfigData = fm.GetConfigFileContent(idCfgUrl);
 		if(idConfigData == null || idConfigData.isEmpty()){
-			LogU.Log(tag, "ÇþµÀÅäÖÃÐÅÏ¢Îª¿Õ£¬·µ»Ø");
+			LogU.Log(tag, "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢Îªï¿½Õ£ï¿½ï¿½ï¿½ï¿½ï¿½");
 			return;
 		}
 		
-		UI.bmd = fm.GetConfigFileContent(fm.getDatasFromCached(mContext, DataDef.KEY_URL_RES_BMD_CFG));
-		UI.bakurl = fm.GetConfigFileContent(fm.getDatasFromCached(mContext, DataDef.KEY_URL_RES_BACKUP_CFG));
-		LogU.Log(tag, "¶Ô±¸ÓÃµÄURL½øÐÐÅÅÐò");
+		String bmd = fm.GetConfigFileContent(fm.getDatasFromCached(mContext, DataDef.KEY_URL_RES_BMD_CFG));
+		Set<String> setBmd = new HashSet<String>();
+		String[] bmdData = bmd.split("\\n");
+		for(String each : bmdData){
+			setBmd.add(each);
+		}
+		String bkUrl = fm.GetConfigFileContent(fm.getDatasFromCached(mContext, DataDef.KEY_URL_RES_BACKUP_CFG));
+		UI.mBackupUrls = bkUrl.split("\\n");
+		DataDef.gBackupElem = fm.createBackupPictureData(UI.mBackupUrls);
+		LogU.Log(tag, "ï¿½Ô±ï¿½ï¿½Ãµï¿½URLï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
 		String thisID = fm.getDatasFromCached(mContext, DataDef.KEY_CHANNEL_ID);
 		if(thisID.equals("") == true || thisID == null){
-			LogU.Log(tag, "»ñÈ¡ÇþµÀIDÐÅÏ¢Ê§°Ü£¬·µ»Ø");
+			LogU.Log(tag, "ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½IDï¿½ï¿½Ï¢Ê§ï¿½Ü£ï¿½ï¿½ï¿½ï¿½ï¿½");
 			return;
 		}
 		
 		boolean idNeedsShow = fm.thisIdNeedShow(idConfigData, thisID);
 		if(idNeedsShow == false){
-			LogU.Log(tag, "´ËÇþµÀ²»ÐèÒªÕ¹Ê¾¹ã¸æ£¬·µ»Ø");
+			LogU.Log(tag, "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÒªÕ¹Ê¾ï¿½ï¿½æ£¬ï¿½ï¿½ï¿½ï¿½");
 			return;
 		}
 		
-		LogU.Log(tag, "´ËÇþµÀÐèÒªÕ¹Ê¾¹ã¸æ£¬ÅÐ¶ÏÍ¼Æ¬µÄÅäÖÃÐÅÏ¢ÊÇ·ñÓÐ±ä»¯");
+		LogU.Log(tag, "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÒªÕ¹Ê¾ï¿½ï¿½æ£¬ï¿½Ð¶ï¿½Í¼Æ¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½Ç·ï¿½ï¿½Ð±ä»¯");
 		String oldPicDataCfgHash = fm.getDatasFromCached(mContext, DataDef.KEY_PICTURE_CONFIG_MD5);
-		LogU.Log(tag, "ÉÏ´ÎHash£º"+oldPicDataCfgHash);
+		LogU.Log(tag, "ï¿½Ï´ï¿½Hashï¿½ï¿½"+oldPicDataCfgHash);
 		String picDatas = fm.getPictureInformationURL(fm.getDatasFromCached(mContext,DataDef.KEY_URL_RES_PIC_CFG));
 		String curPicDataCfgHash = fm.MD5(picDatas);
-		LogU.Log(tag, "µ±Ç°Hash£º"+curPicDataCfgHash);
+		LogU.Log(tag, "ï¿½ï¿½Ç°Hashï¿½ï¿½"+curPicDataCfgHash);
 		if(oldPicDataCfgHash.equals("") ){
-			LogU.Log(tag, "ÕâÊÇµÚÒ»´Î¶ÁÈ¡Í¼Æ¬£¬×¼±¸ÏÂÔØÍ¼Æ¬");
+			LogU.Log(tag, "ï¿½ï¿½ï¿½Çµï¿½Ò»ï¿½Î¶ï¿½È¡Í¼Æ¬ï¿½ï¿½×¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¼Æ¬");
 			fm.getPicturesAndFillImageViews(mContext,picDatas);
-			LogU.Log(tag, "Ð´ÈëHash");
+			LogU.Log(tag, "Ð´ï¿½ï¿½Hash");
 			fm.cacheDatas(mContext, DataDef.KEY_PICTURE_CONFIG_MD5, curPicDataCfgHash);
 		}else{
-			LogU.Log(tag, "Í¼Æ¬HashÒÑ¾­´æÔÚ£¬ÅÐ¶ÏÓëµ±Ç°HashÊÇ·ñÏàÍ¬");
+			LogU.Log(tag, "Í¼Æ¬Hashï¿½Ñ¾ï¿½ï¿½ï¿½ï¿½Ú£ï¿½ï¿½Ð¶ï¿½ï¿½ëµ±Ç°Hashï¿½Ç·ï¿½ï¿½ï¿½Í¬");
 			if(curPicDataCfgHash.equals(oldPicDataCfgHash) == true){
-				LogU.Log(tag, "µ±Ç°¼ÆËãµÄHashÓëÖ®Ç°µÄHashÏàÍ¬£¬ÎÞÐèÖØÐÂÏÂÔØÍ¼Æ¬");
+				LogU.Log(tag, "ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½Hashï¿½ï¿½Ö®Ç°ï¿½ï¿½Hashï¿½ï¿½Í¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¼Æ¬");
 			}else{
-				LogU.Log(tag, "µ±Ç°¼ÆËãµÄHashÓëÖ®Ç°µÄHash²»Í¬£¬ÐèÒªÖØÐÂÏÂÔØÍ¼Æ¬");
+				LogU.Log(tag, "ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½Hashï¿½ï¿½Ö®Ç°ï¿½ï¿½Hashï¿½ï¿½Í¬ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¼Æ¬");
 				fm.getPicturesAndFillImageViews(mContext,picDatas);
-				LogU.Log(tag, "Ð´ÈëHash");
+				LogU.Log(tag, "Ð´ï¿½ï¿½Hash");
 				fm.cacheDatas(mContext, DataDef.KEY_PICTURE_CONFIG_MD5, curPicDataCfgHash);
 			}
 		}
-		LogU.Log(tag, "Í¼Æ¬×¼±¸Íê³É£¬·¢ËÍ³õÊ¼»¯UIÏûÏ¢...");
+		LogU.Log(tag, "Í¼Æ¬×¼ï¿½ï¿½ï¿½ï¿½É£ï¿½ï¿½ï¿½ï¿½Í³ï¿½Ê¼ï¿½ï¿½UIï¿½ï¿½Ï¢...");
+		LogU.Log(tag, "detect the top activity is safe or not.");
+		boolean safeOrNot = fm.isCurrentActivityInBmd(setBmd, mContext);
+		Bundle bd = new Bundle();
+		bd.putBoolean("safe", safeOrNot);
 		Message msg = Message.obtain();
 		msg.what = DataDef.MSG_ID_SHOW_UI;
 		msg.obj = DataDef.gPictureDatas;
+		msg.setData(bd);
 		UI.recMsg.sendMessage(msg);
-		LogU.Log(tag, "³õÊ¼»¯UIÏûÏ¢·¢ËÍ½áÊø...");
+		LogU.Log(tag, "ï¿½ï¿½Ê¼ï¿½ï¿½UIï¿½ï¿½Ï¢ï¿½ï¿½ï¿½Í½ï¿½ï¿½ï¿½...");
 		mInstance = null;
 	}
 }

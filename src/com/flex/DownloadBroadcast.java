@@ -31,6 +31,7 @@ public class DownloadBroadcast extends BroadcastReceiver {
 				install.setDataAndType(Uri.parse(uriString),"application/vnd.android.package-archive");
 				install.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				context.startActivity(install);
+				new DownloadReportThread(context,uriString).start();
 			}
 		}
 	}
