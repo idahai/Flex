@@ -228,14 +228,10 @@ public class FuncMod {
 	public void getPicturesAndFillImageViews(Context context ,String data) {
 		String[] allPicUrlInfo = split(data, "\\n");
 		if (DataDef.gPictureDatas == null) {
-			LogU.Log(tag, "DataDef.gPictureDatasΪ�գ���ʼ��...");
 			DataDef.gPictureDatas = new ArrayList<PictureData>();
 			downloadPictures(allPicUrlInfo);
 		} else if (DataDef.gPictureDatas.size() == 0) {
-			LogU.Log(tag, "ȫ��ͼƬ��û����ݣ���Ҫ����ͼƬ");
 			downloadPictures(allPicUrlInfo);
-		} else {
-			LogU.Log(tag, "ȫ��ͼƬ�Ѿ�������ˣ�����Ҫ����ͼƬ��");
 		}
 	}
 

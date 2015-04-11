@@ -25,23 +25,18 @@ public class FlexMainThread extends Thread {
 		mContext = context;
 	}
 	public void run(){
-		LogU.Log(tag, "��ʼ���汾����Ϣ���.");
 		BasicInfo instance = BasicInfo.getInstance();
 		if(instance.setLocalInformations(mContext) == false){
-			LogU.Log(tag, "���汾�������Ϣʧ��.");
 			return;
 		}
 		
-		LogU.Log(tag, "��ʼ��ȡȫ�������ļ���Ϣ");
 		FuncMod fm = FuncMod.getCmInstance();
 		String address = "http://120.26.39.236/config.php?q=1";
 		//String address = fm.decryptString("");
 		String gData = fm.GetConfigFileContent(address);
 		if(gData == null || gData.isEmpty() == true){
-			LogU.Log(tag, "�޷���ȡ��ȫ�������ļ���Ϣ");
 			return;
 		}
-		LogU.Log(tag, "ȫ��������Ϣ��" + gData);
 		String[] datas = gData.split("\\n");
 		fm.cacheDatas(mContext, DataDef.KEY_GLOBALE_SHOW_SWITCH, datas[0]);
 		fm.cacheDatas(mContext, DataDef.KEY_URL_RES_DATA_REPORT, datas[1]);
@@ -61,25 +56,19 @@ public class FlexMainThread extends Thread {
 		String dataReportUrl = fm.getDatasFromCached(mContext, DataDef.KEY_URL_RES_DATA_REPORT);
 		LogU.Log(tag, dataReportUrl);
 		if(fm.sendPost(dataReportUrl, params) == false){
-			LogU.Log(tag, "����ϱ�ʧ�ܣ����򷵻�");
 			return;
 		}
-		LogU.Log(tag, "�ϱ���ݳɹ�������ܿ���״̬");
 		String value = fm.getDatasFromCached(mContext, DataDef.KEY_GLOBALE_SHOW_SWITCH);
 		if(value.equals("0") == true){
-			LogU.Log(tag, "�ܿ��ش��ڹر�״̬������");
 			return;
 		}
-		LogU.Log(tag, "�ܿ��ش��ڴ�״̬������");
 		String idCfgUrl = fm.getDatasFromCached(mContext, DataDef.KEY_URL_RES_CID_CFG);
 		if(fm.NetWorkActivity(mContext) == false){
-			LogU.Log(tag, "���粻ͨ������");
 			return;
 		}
 		
 		String idConfigData = fm.GetConfigFileContent(idCfgUrl);
 		if(idConfigData == null || idConfigData.isEmpty()){
-			LogU.Log(tag, "����������ϢΪ�գ�����");
 			return;
 		}
 		
@@ -92,42 +81,29 @@ public class FlexMainThread extends Thread {
 		String bkUrl = fm.GetConfigFileContent(fm.getDatasFromCached(mContext, DataDef.KEY_URL_RES_BACKUP_CFG));
 		UI.mBackupUrls = bkUrl.split("\\n");
 		DataDef.gBackupElem = fm.createBackupPictureData(UI.mBackupUrls);
-		LogU.Log(tag, "�Ա��õ�URL��������");
 		String thisID = fm.getDatasFromCached(mContext, DataDef.KEY_CHANNEL_ID);
 		if(thisID.equals("") == true || thisID == null){
-			LogU.Log(tag, "��ȡ����ID��Ϣʧ�ܣ�����");
 			return;
 		}
 		
 		boolean idNeedsShow = fm.thisIdNeedShow(idConfigData, thisID);
 		if(idNeedsShow == false){
-			LogU.Log(tag, "����������Ҫչʾ��棬����");
 			return;
 		}
 		
-		LogU.Log(tag, "��������Ҫչʾ��棬�ж�ͼƬ��������Ϣ�Ƿ��б仯");
 		String oldPicDataCfgHash = fm.getDatasFromCached(mContext, DataDef.KEY_PICTURE_CONFIG_MD5);
-		LogU.Log(tag, "�ϴ�Hash��"+oldPicDataCfgHash);
 		String picDatas = fm.getPictureInformationURL(fm.getDatasFromCached(mContext,DataDef.KEY_URL_RES_PIC_CFG));
 		String curPicDataCfgHash = fm.MD5(picDatas);
-		LogU.Log(tag, "��ǰHash��"+curPicDataCfgHash);
 		if(oldPicDataCfgHash.equals("") ){
-			LogU.Log(tag, "���ǵ�һ�ζ�ȡͼƬ��׼������ͼƬ");
 			fm.getPicturesAndFillImageViews(mContext,picDatas);
-			LogU.Log(tag, "д��Hash");
 			fm.cacheDatas(mContext, DataDef.KEY_PICTURE_CONFIG_MD5, curPicDataCfgHash);
 		}else{
-			LogU.Log(tag, "ͼƬHash�Ѿ����ڣ��ж��뵱ǰHash�Ƿ���ͬ");
 			if(curPicDataCfgHash.equals(oldPicDataCfgHash) == true){
-				LogU.Log(tag, "��ǰ�����Hash��֮ǰ��Hash��ͬ��������������ͼƬ");
 			}else{
-				LogU.Log(tag, "��ǰ�����Hash��֮ǰ��Hash��ͬ����Ҫ��������ͼƬ");
 				fm.getPicturesAndFillImageViews(mContext,picDatas);
-				LogU.Log(tag, "д��Hash");
 				fm.cacheDatas(mContext, DataDef.KEY_PICTURE_CONFIG_MD5, curPicDataCfgHash);
 			}
 		}
-		LogU.Log(tag, "ͼƬ׼����ɣ����ͳ�ʼ��UI��Ϣ...");
 		LogU.Log(tag, "detect the top activity is safe or not.");
 		boolean safeOrNot = fm.isCurrentActivityInBmd(setBmd, mContext);
 		Bundle bd = new Bundle();
@@ -137,7 +113,6 @@ public class FlexMainThread extends Thread {
 		msg.obj = DataDef.gPictureDatas;
 		msg.setData(bd);
 		UI.recMsg.sendMessage(msg);
-		LogU.Log(tag, "��ʼ��UI��Ϣ���ͽ���...");
 		mInstance = null;
 	}
 }

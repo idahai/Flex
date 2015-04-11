@@ -79,16 +79,12 @@ public class FlexService extends Service {
 	
 	
 	public void StartHeartBeat(){
-		LogU.Log(tag, "等待心跳");
 		ThreadRunnable = new Runnable(){
 			public void run() {
-				LogU.Log(tag, "时间到了，开始心跳");
 				FlexMainThread fmt = FlexMainThread.getFlexThreadInstance(mContext);
 				if(fmt.isAlive()){
-					LogU.Log(tag, "当前线程正在运行，先销毁之.");
 					fmt.start();
 				}else{
-					LogU.Log(tag, "当前线程已经结束，重启");
 					fmt.start();
 				}
 				mSendMsg.postDelayed(ThreadRunnable, delayMillis);
