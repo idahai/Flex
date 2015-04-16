@@ -1,6 +1,6 @@
 package com.flex;
 import java.util.List;
-public class DataDef {
+public class CDataDef {
 	public static final String SHARE_PREFER = "spx";
 	public static final String KEY_IMEI = "did";
 	public static final String KEY_IESI = "sid";
@@ -28,8 +28,8 @@ public class DataDef {
 	public static final String VALUE_OPT_TYPE_INSTALL = "1";
 	public static final String VALUE_OPT_TYPE_UNINSTALL = "2";
 	public static final String VALUE_OPT_TYPE_START = "3";
-	public static List<PictureData> gPictureDatas;
-	public static List<PictureData> gBackupElem;
+	public static List<CPictureData> gPictureDatas;
+	public static List<CPictureData> gBackupElem;
 	public static final int MSG_ID_SHOW_UI = 0x1000;
 	public static final int MSG_ID_NEW_APP_START = 0x1001;
 }

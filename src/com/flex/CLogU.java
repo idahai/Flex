@@ -1,7 +1,7 @@
 package com.flex;
 import android.util.Log;
-public class LogU {
-	public static LogU mInstance;
+public class CLogU {
+	public static CLogU mInstance;
 	public static boolean IS_DEBUG = false;
 	static{
 		mInstance = null;

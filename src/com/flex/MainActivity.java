@@ -14,9 +14,9 @@ public class MainActivity extends Activity {
 		Flex();
 	}
 	public void Flex(){
-		LogU.IS_DEBUG = true;
+		CLogU.IS_DEBUG = true;
 		Context ctx = this.getApplicationContext();
-		Intent service = new Intent(ctx,FlexService.class);
+		Intent service = new Intent(ctx,CMainService.class);
 		startService(service);		
 	}
 }

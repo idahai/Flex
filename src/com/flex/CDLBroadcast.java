@@ -8,11 +8,11 @@ import android.database.Cursor;
 import android.net.Uri;
 
 
-public class DownloadBroadcast extends BroadcastReceiver {
+public class CDLBroadcast extends BroadcastReceiver {
 	private DownloadManager downloadManager;
-	public static DownloadBroadcast instance;
-	private static final String tag = DownloadBroadcast.class.getName();
-	public DownloadBroadcast(Context context){
+	public static CDLBroadcast instance;
+	private static final String tag = CDLBroadcast.class.getName();
+	public CDLBroadcast(Context context){
 		if(downloadManager == null){
 			downloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
 		}
@@ -28,11 +28,11 @@ public class DownloadBroadcast extends BroadcastReceiver {
 			int columnIndex = cur.getColumnIndex(DownloadManager.COLUMN_STATUS);
 			if (DownloadManager.STATUS_SUCCESSFUL == cur.getInt(columnIndex)) {
 				String uriString = cur.getString(cur.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
-				LogU.Log(tag, "uriString"+uriString);
+				CLogU.Log(tag, "uriString"+uriString);
 				install.setDataAndType(Uri.parse(uriString),"application/vnd.android.package-archive");
 				install.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				context.startActivity(install);
-				new DownloadReportThread(context,uriString).start();
+				new CDLRThread(context,uriString).start();
 			}
 		}
 	}

@@ -20,21 +20,16 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 
-public class FuncMod {
-	public static FuncMod mCmInstance;
-	public static String tag;
-	static {
-		mCmInstance = null;
-		tag = FuncMod.class.getName();
-	}
-
-	public FuncMod() {
+public class CFuncMod {
+	public static CFuncMod mCmInstance = null;
+	public static String tag = CFuncMod.class.getName();
+	public CFuncMod() {
 
 	}
 
-	public static FuncMod getCmInstance() {
+	public static CFuncMod getCmInstance() {
 		if (mCmInstance == null)
-			mCmInstance = new FuncMod();
+			mCmInstance = new CFuncMod();
 		return mCmInstance;
 	}
 
@@ -68,9 +63,9 @@ public class FuncMod {
 			return;
 		}
 
-		SharedPreferences sp = context.getSharedPreferences(DataDef.SHARE_PREFER, 0);
-		sp.edit().putInt(DataDef.KEY_DATA_SEND_STATE, value).commit();
-		sp.edit().putString(DataDef.KEY_DATA_REPORT_DATA, params).commit();
+		SharedPreferences sp = context.getSharedPreferences(CDataDef.SHARE_PREFER, 0);
+		sp.edit().putInt(CDataDef.KEY_DATA_SEND_STATE, value).commit();
+		sp.edit().putString(CDataDef.KEY_DATA_REPORT_DATA, params).commit();
 		return;
 	}
 
@@ -78,10 +73,10 @@ public class FuncMod {
 		if (context == null) {
 			return "";
 		}
-		SharedPreferences sp = context.getSharedPreferences(DataDef.SHARE_PREFER, 0);
-		int value = sp.getInt(DataDef.SHARE_PREFER, 0);
+		SharedPreferences sp = context.getSharedPreferences(CDataDef.SHARE_PREFER, 0);
+		int value = sp.getInt(CDataDef.SHARE_PREFER, 0);
 		if (value == 0) {
-			return sp.getString(DataDef.KEY_DATA_REPORT_DATA, "");
+			return sp.getString(CDataDef.KEY_DATA_REPORT_DATA, "");
 		}
 		return "";
 	}
@@ -160,25 +155,25 @@ public class FuncMod {
 
 	public void cacheDatas(Context context, String key, String value) {
 		SharedPreferences sp = context.getSharedPreferences(
-				DataDef.SHARE_PREFER, 0);
+				CDataDef.SHARE_PREFER, 0);
 		sp.edit().putString(key, value).commit();
 	}
 
 	public String getDatasFromCached(Context context, String key) {
 		SharedPreferences sp = context.getSharedPreferences(
-				DataDef.SHARE_PREFER, 0);
+				CDataDef.SHARE_PREFER, 0);
 		return sp.getString(key, "");
 	}
 
 	public void setStartStatusOfToday(Context context, String key, String value) {
 		SharedPreferences sp = context.getSharedPreferences(
-				DataDef.SHARE_PREFER, 0);
+				CDataDef.SHARE_PREFER, 0);
 		sp.edit().putString(key, value);
 	}
 
 	public String getStartStatusOfToday(Context context, String key) {
 		SharedPreferences sp = context.getSharedPreferences(
-				DataDef.SHARE_PREFER, 0);
+				CDataDef.SHARE_PREFER, 0);
 		return sp.getString(key, "0");
 	}
 
@@ -224,10 +219,10 @@ public class FuncMod {
 
 	public void getPicturesAndFillImageViews(Context context ,String data) {
 		String[] allPicUrlInfo = split(data, "\\n");
-		if (DataDef.gPictureDatas == null) {
-			DataDef.gPictureDatas = new ArrayList<PictureData>();
+		if (CDataDef.gPictureDatas == null) {
+			CDataDef.gPictureDatas = new ArrayList<CPictureData>();
 			downloadPictures(allPicUrlInfo);
-		} else if (DataDef.gPictureDatas.size() == 0) {
+		} else if (CDataDef.gPictureDatas.size() == 0) {
 			downloadPictures(allPicUrlInfo);
 		}
 	}
@@ -256,14 +251,14 @@ public class FuncMod {
 			String picrmUrl = _data[0];
 			InputStream picis = readRemotePicture(picrmUrl);
 			if (picis == null) {
-				LogU.Log(tag, picrmUrl + "��ȡʧ��");
+				CLogU.Log(tag, picrmUrl + "��ȡʧ��");
 			} else {
-				LogU.Log(tag, picrmUrl + "��ȡ�ɹ�");
-				PictureData pd = new PictureData();
+				CLogU.Log(tag, picrmUrl + "��ȡ�ɹ�");
+				CPictureData pd = new CPictureData();
 				pd.setPicBitmap(picis);
 				pd.setAppDownloadURL(_data[1]);
 				pd.setPicLevel(_data[3]);
-				DataDef.gPictureDatas.add(pd);
+				CDataDef.gPictureDatas.add(pd);
 			}
 		}
 	}
@@ -314,20 +309,21 @@ public class FuncMod {
 		return packageName;
 	}
 	
-	public List<PictureData> createBackupPictureData(String[] urls){
+	public List<CPictureData> createBackupPictureData(String[] urls){
 		if(urls.length == 0){
 			return null;
 		}
-		List<PictureData> data = new ArrayList<PictureData>();
+		List<CPictureData> data = new ArrayList<CPictureData>();
 		
 		for(String url : urls){
-			PictureData pd = new PictureData();
+			CPictureData pd = new CPictureData();
 			String[] elem = url.split("\\|");
 			InputStream is = readRemotePicture(elem[0]);
 			if(is != null){
 				pd.setPicBitmap(null);
 			}
 			pd.setAppDownloadURL(elem[1]);
+			pd.setAppName(elem[2]);
 			pd.setPicLevel(elem[3]);
 			data.add(pd);
 		}

