@@ -54,8 +54,16 @@ public class AppDownThread extends Thread {
 		try {
 			DownloadManager downloadManager = (DownloadManager) mContext.getSystemService(Context.DOWNLOAD_SERVICE);
 			String location = getLocationMethod(mAppUrl);
-			String fileName = location.substring(location.lastIndexOf("/") + 1, location.length());
-			Uri resource = Uri.parse(encodeGB(location));
+			String fileName = "";
+			Uri resource;
+			if(location == null){
+				fileName = mAppUrl.substring(mAppUrl.lastIndexOf("/") + 1, mAppUrl.length());
+				resource = Uri.parse(encodeGB(mAppUrl));
+			}else{
+				fileName = location.substring(location.lastIndexOf("/") + 1, location.length());
+				resource = Uri.parse(encodeGB(location));
+			}
+			
 			DownloadManager.Request request = new DownloadManager.Request(resource);
 			request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE|DownloadManager.Request.NETWORK_WIFI);
 			request.setAllowedOverRoaming(false);

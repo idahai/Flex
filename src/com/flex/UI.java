@@ -222,7 +222,7 @@ public class UI {
 	private void autoDisplay() {
 		autoRun = new Runnable() {
 			public void run() {
-				if (mCurrentIndex + 1 >= 3) {
+				if (mCurrentIndex + 1 >= DataDef.gPictureDatas.size()) {
 					mCurrentIndex = 0;
 				} else {
 					mCurrentIndex = mCurrentIndex + 1;

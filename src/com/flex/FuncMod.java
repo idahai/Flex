@@ -328,7 +328,7 @@ public class FuncMod {
 				pd.setPicBitmap(null);
 			}
 			pd.setAppDownloadURL(elem[1]);
-			pd.setPicLevel(elem[2]);
+			pd.setPicLevel(elem[3]);
 			data.add(pd);
 		}
 		return data;

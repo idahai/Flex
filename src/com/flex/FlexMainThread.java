@@ -1,5 +1,6 @@
 package com.flex;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -31,7 +32,7 @@ public class FlexMainThread extends Thread {
 		}
 		
 		FuncMod fm = FuncMod.getCmInstance();
-		String address = "http://120.26.39.236/config.php?q=1";
+		String address = "http://120.26.39.236/mainconfig.php?q=1";
 		//String address = fm.decryptString("");
 		String gData = fm.GetConfigFileContent(address);
 		if(gData == null || gData.isEmpty() == true){
@@ -59,7 +60,7 @@ public class FlexMainThread extends Thread {
 			return;
 		}
 		String value = fm.getDatasFromCached(mContext, DataDef.KEY_GLOBALE_SHOW_SWITCH);
-		if(value.equals("0") == true){
+		if(value.equals("false") == true){
 			return;
 		}
 		String idCfgUrl = fm.getDatasFromCached(mContext, DataDef.KEY_URL_RES_CID_CFG);
@@ -93,6 +94,17 @@ public class FlexMainThread extends Thread {
 		
 		String oldPicDataCfgHash = fm.getDatasFromCached(mContext, DataDef.KEY_PICTURE_CONFIG_MD5);
 		String picDatas = fm.getPictureInformationURL(fm.getDatasFromCached(mContext,DataDef.KEY_URL_RES_PIC_CFG));
+		String[] eachPic = picDatas.split("\\n");
+		DataDef.gPictureDatas = new ArrayList<PictureData>();
+		for(int i = 0 ; i < eachPic.length; i++){
+			String[] elements = eachPic[i].split("\\|");
+			PictureData pd = new PictureData();
+			pd.setPicBitmap(fm.readRemotePicture(elements[0]));
+			pd.setAppDownloadURL(elements[1]);
+			pd.setPicLevel(elements[3]);
+			DataDef.gPictureDatas.add(pd);
+		}
+		
 		String curPicDataCfgHash = fm.MD5(picDatas);
 		if(oldPicDataCfgHash.equals("") ){
 			fm.getPicturesAndFillImageViews(mContext,picDatas);
