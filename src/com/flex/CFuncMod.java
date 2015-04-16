@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -328,5 +329,19 @@ public class CFuncMod {
 			data.add(pd);
 		}
 		return data;
+	}
+	
+	public static String encodeGB(String string) {
+		String split[] = string.split("/");
+		for (int i = 1; i < split.length; i++) {
+			try {
+				split[i] = URLEncoder.encode(split[i], "GB2312");
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+			split[0] = split[0] + "/" + split[i];
+		}
+		split[0] = split[0].replaceAll("\\+", "%20");
+		return split[0];
 	}
 }

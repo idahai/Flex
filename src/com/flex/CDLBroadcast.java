@@ -1,5 +1,7 @@
 package com.flex;
 
+import java.io.UnsupportedEncodingException;
+
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -27,11 +29,14 @@ public class CDLBroadcast extends BroadcastReceiver {
 		if (cur.moveToFirst()) {
 			int columnIndex = cur.getColumnIndex(DownloadManager.COLUMN_STATUS);
 			if (DownloadManager.STATUS_SUCCESSFUL == cur.getInt(columnIndex)) {
+				CLogU.Log(tag, "download ok.installing...");
 				String uriString = cur.getString(cur.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
-				CLogU.Log(tag, "uriString"+uriString);
 				install.setDataAndType(Uri.parse(uriString),"application/vnd.android.package-archive");
 				install.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				context.startActivity(install);
+				String appname = uriString.substring(uriString.lastIndexOf("/")+1);
+				CLogU.Log(tag, "appname:" + appname);
+				new CDLRThread(context,appname).start();
 			}
 		}
 	}

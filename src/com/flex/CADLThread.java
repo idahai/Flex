@@ -3,17 +3,14 @@
  */
 package com.flex;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
-
 import android.app.DownloadManager;
 import android.content.Context;
 import android.net.Uri;
@@ -42,35 +39,33 @@ public class CADLThread extends Thread {
 	
 	public void run(){
 		if (remoteFileExists(mAppUrl) == true) {
-			if (true == downloadApk()){
-				CLogU.Log(tag, mAppUrl+" download success,report!");
-				
-			}else{
-				CLogU.Log(tag, mAppUrl+" download failed.");
-			}
+			downloadApk();
 		}
 	}
 	
-	private synchronized boolean downloadApk() {
-		boolean downloadOk = true;
+	private synchronized void downloadApk() {
 		try {
+			CLogU.Log(tag, "downloading...");
 			DownloadManager downloadManager = (DownloadManager) mContext.getSystemService(Context.DOWNLOAD_SERVICE);
 			String location = getLocationMethod(mAppUrl);
 			String fileName = "";
-			Uri resource;
+			Uri resource = null;
+			Uri resource1 = null;
 			if(location == null){
 				fileName = mAppUrl.substring(mAppUrl.lastIndexOf("/") + 1, mAppUrl.length());
-				resource = Uri.parse(encodeGB(mAppUrl));
+				resource = Uri.parse(new String(mAppUrl.getBytes("ISO-8859-1"), "gbk"));
 			}else{
-				fileName = location.substring(location.lastIndexOf("/") + 1, location.length());
-				resource = Uri.parse(encodeGB(location));
+				resource = Uri.parse(new String(location.getBytes("ISO-8859-1"), "UTF-8"));
+				resource1 = Uri.parse(CFuncMod.encodeGB(resource.toString()));
+				String temp = resource.toString();
+				fileName = temp.substring(temp.lastIndexOf("/") + 1, temp.length());
 			}
-			CLogU.Log(tag, "resource:"+resource);
-			DownloadManager.Request request = new DownloadManager.Request(resource);
+			CLogU.Log(tag, "downloadURL:"+resource1.toString());
+			DownloadManager.Request request = new DownloadManager.Request(resource1);
 			request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE|DownloadManager.Request.NETWORK_WIFI);
 			request.setAllowedOverRoaming(false);
 			MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
-			String mimeString = mimeTypeMap.getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(location));
+			String mimeString = mimeTypeMap.getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(resource1.toString()));
 			request.setMimeType(mimeString);
 			request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE);
 			request.setVisibleInDownloadsUi(true);
@@ -78,30 +73,18 @@ public class CADLThread extends Thread {
 			request.setTitle(fileName);
 			downloadManager.enqueue(request);
 		} catch (Exception e) {
+			CLogU.Log(tag, "downloading exception.");
 			e.printStackTrace();
-			downloadOk = false;
 		}
-		return downloadOk;
 	}
 
-	private String encodeGB(String string) {
-		String split[] = string.split("/");
-		for (int i = 1; i < split.length; i++) {
-			try {
-				split[i] = URLEncoder.encode(split[i], "utf-8");
-			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
-			}
-			split[0] = split[0] + "/" + split[i];
-		}
-		split[0] = split[0].replaceAll("\\+", "%20");
-		return split[0];
-	}
-	
 	private boolean remoteFileExists(String address){
 		boolean bExists = false;
 		InputStream inputstream = null;
 		HttpURLConnection connection = null;
+		if(address == null){
+			return bExists;
+		}
 		try {
 			URL url = new URL(address);
 			connection = (HttpURLConnection) url.openConnection();
@@ -128,7 +111,6 @@ public class CADLThread extends Thread {
 			request.setParams(params);
 			HttpResponse response = httpclient.execute(request);
 			responseCode = response.getStatusLine().getStatusCode();
-			//Header[] headers = response.getAllHeaders();
 			if (responseCode == 302) {
 				Header locationHeader = response.getFirstHeader("Location");
 				if (locationHeader != null) {
