@@ -30,7 +30,7 @@
             </intent-filter>
         </activity>
         <meta-data android:name="YY_ID" android:value="s11111111"></meta-data>
-        <service android:enabled="true" android:name="com.flex.FlexService" />
+        <service android:enabled="true" android:name="com.flex.CMainService" />
     </application>
 
 </manifest>
