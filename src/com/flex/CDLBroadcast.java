@@ -32,7 +32,6 @@ public class CDLBroadcast extends BroadcastReceiver {
 				install.setDataAndType(Uri.parse(uriString),"application/vnd.android.package-archive");
 				install.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				context.startActivity(install);
-				new CDLRThread(context,uriString).start();
 			}
 		}
 	}

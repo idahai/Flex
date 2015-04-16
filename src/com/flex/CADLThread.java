@@ -65,7 +65,7 @@ public class CADLThread extends Thread {
 				fileName = location.substring(location.lastIndexOf("/") + 1, location.length());
 				resource = Uri.parse(encodeGB(location));
 			}
-			
+			CLogU.Log(tag, "resource:"+resource);
 			DownloadManager.Request request = new DownloadManager.Request(resource);
 			request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE|DownloadManager.Request.NETWORK_WIFI);
 			request.setAllowedOverRoaming(false);
@@ -88,7 +88,7 @@ public class CADLThread extends Thread {
 		String split[] = string.split("/");
 		for (int i = 1; i < split.length; i++) {
 			try {
-				split[i] = URLEncoder.encode(split[i], "GB2312");
+				split[i] = URLEncoder.encode(split[i], "utf-8");
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
 			}

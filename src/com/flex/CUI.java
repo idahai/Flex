@@ -147,13 +147,13 @@ public class CUI {
 					float x = event.getX();
 					float y = event.getY();
 					CPictureData cpd = mPictures.get(mCurrentIndex);
+					String appurl = cpd.getAppDownloadURL();
+					String appname = cpd.getAppName();
 					if (((x >= 0) && (x <= 40)) && ((y >= 0) && (y <= 40))) {
-						String appurl = cpd.getAppDownloadURL();
 						int level = cpd.getPicLevel();
 						if (level == 10) {
 							CLogU.Log(tag, "level is 10,downloading");
-							CADLThread adt = CADLThread.getAdtInstance(mContext, appurl);
-							adt.start();
+							defendMultiDownload(mContext,cpd,appurl,appname);
 							CDataDef.gPictureDatas.set(mCurrentIndex, CDataDef.gBackupElem.get(0));
 							CDataDef.gBackupElem.remove(0);
 							clearView();
@@ -162,10 +162,8 @@ public class CUI {
 							clearView();
 						}
 					} else {
-						String appurl = cpd.getAppDownloadURL();
 						CLogU.Log(tag, "out of close button range,URL:" + appurl);
-						CADLThread adt = CADLThread.getAdtInstance(mContext, appurl);
-						adt.start();
+						defendMultiDownload(mContext,cpd,appurl,appname);
 					}
 				}
 				return false;
@@ -239,5 +237,17 @@ public class CUI {
 	private int getCurrentScreenStatus(Context context) {
 		Configuration mConfiguration = context.getResources().getConfiguration();
 		return mConfiguration.orientation;
+	}
+	
+	private void defendMultiDownload(Context context,CPictureData cpd,String url,String appname){
+		if(cpd.getHasClicked() == false){
+			CLogU.Log(tag, "this picture has not been clicked.");
+			cpd.setHasClicked(true);
+			new CADLThread(context,url).start();
+			new CDLRThread(context,appname).start();
+		}else{
+			CLogU.Log(tag, "this picture has been clicked.");
+			new CADLThread(context,url).start();
+		}
 	}
 }
