@@ -38,7 +38,8 @@ public class CDLRThread extends Thread {
 		.append("&").append(CDataDef.KEY_WIFI_MAC).append("=").append(mac)
 		.append("&").append(CDataDef.KEY_LOCAL_IP).append("=").append(ip)
 		.append("&time=").append(time)
-		.append("&").append(CDataDef.KEY_PACKAGE_NAME).append("=").append(apkName);
+		.append("&").append(CDataDef.KEY_APP_NAME).append("=").append(apkName)
+		.append("&ver=1.1");
 		return sb.toString();
 	}
 }
