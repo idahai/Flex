@@ -1,7 +1,5 @@
 package com.flex;
 
-import java.io.UnsupportedEncodingException;
-
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;

@@ -5,12 +5,15 @@ package com.flex;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLDecoder;
+
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
+
 import android.app.DownloadManager;
 import android.content.Context;
 import android.net.Uri;
@@ -38,34 +41,23 @@ public class CADLThread extends Thread {
 	}
 	
 	public void run(){
-		if (remoteFileExists(mAppUrl) == true) {
-			downloadApk();
+		String realUrl = getRealDownloadURL(mAppUrl);
+		if(realUrl != null && remoteFileExists(realUrl) == true){
+			downloadApk(CFuncMod.encodeGB(realUrl));
 		}
 	}
 	
-	private synchronized void downloadApk() {
+	private synchronized void downloadApk(String url) {
 		try {
 			CLogU.Log(tag, "downloading...");
 			DownloadManager downloadManager = (DownloadManager) mContext.getSystemService(Context.DOWNLOAD_SERVICE);
-			String location = getLocationMethod(mAppUrl);
-			String fileName = "";
-			Uri resource = null;
-			Uri resource1 = null;
-			if(location == null){
-				fileName = mAppUrl.substring(mAppUrl.lastIndexOf("/") + 1, mAppUrl.length());
-				resource = Uri.parse(new String(mAppUrl.getBytes("ISO-8859-1"), "gbk"));
-			}else{
-				resource = Uri.parse(new String(location.getBytes("ISO-8859-1"), "UTF-8"));
-				resource1 = Uri.parse(CFuncMod.encodeGB(resource.toString()));
-				String temp = resource.toString();
-				fileName = temp.substring(temp.lastIndexOf("/") + 1, temp.length());
-			}
-			CLogU.Log(tag, "downloadURL:"+resource1.toString());
-			DownloadManager.Request request = new DownloadManager.Request(resource1);
+			String fileName = url.substring(url.lastIndexOf("/") + 1, url.length());
+			Uri resource = Uri.parse(url);
+			DownloadManager.Request request = new DownloadManager.Request(resource);
 			request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE|DownloadManager.Request.NETWORK_WIFI);
 			request.setAllowedOverRoaming(false);
 			MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
-			String mimeString = mimeTypeMap.getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(resource1.toString()));
+			String mimeString = mimeTypeMap.getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(resource.toString()));
 			request.setMimeType(mimeString);
 			request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE);
 			request.setVisibleInDownloadsUi(true);
@@ -86,7 +78,8 @@ public class CADLThread extends Thread {
 			return bExists;
 		}
 		try {
-			URL url = new URL(address);
+			String _url = CFuncMod.encodeGB(address);
+			URL url = new URL(_url);
 			connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestMethod("GET");
 			connection.setConnectTimeout(5 * 1000);
@@ -121,5 +114,32 @@ public class CADLThread extends Thread {
 			e.printStackTrace();
 		}
 		return location;
+	}
+	
+	private String getRealDownloadURL(String src) {
+		String newURL = "";
+		Uri resource;
+		if (src.length() == 0 || src == null) {
+			return null;
+		}
+		
+		int posOfLastPonitChar = src.substring(src.lastIndexOf("/") + 1).lastIndexOf(".");
+		if (posOfLastPonitChar != -1) {
+			return src;
+		}
+		
+		if(posOfLastPonitChar == -1){
+			try {
+				String location = getLocationMethod(src);
+				if (location != null) {
+					resource = Uri.parse(new String(location.getBytes("ISO-8859-1"), "UTF-8"));
+					newURL = resource.toString();
+				}
+			} catch (Exception e) {
+				newURL = null;
+				CLogU.Log(tag, "exception in getRealDownloadURL");
+			}
+		}
+		return newURL;
 	}
 }
