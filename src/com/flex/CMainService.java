@@ -25,13 +25,11 @@ public class CMainService extends Service {
 	}
 	@Override
 	public IBinder onBind(Intent intent) {
-		CLogU.Log(tag, "FlexService::onBind");
 		return null;
 	}
 
 	@Override
 	public void onCreate() {
-		CLogU.Log(tag, "FlexService::onCreate");
 		if (mContext == null) {
 			mContext = getApplicationContext();
 		}

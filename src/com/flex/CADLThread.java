@@ -21,12 +21,7 @@ public class CADLThread extends Thread {
 	private Context mContext;
 	private String mAppUrl;
 	public static CADLThread mADTInstance;
-	private static String tag;
-	
-	static{
-		tag = CADLThread.class.getName();
-	}
-	
+	private static String tag = CADLThread.class.getName();
 	public static CADLThread getAdtInstance(Context context ,String _url){
 		if(mADTInstance == null)
 			mADTInstance = new CADLThread(context,_url);
@@ -47,7 +42,6 @@ public class CADLThread extends Thread {
 	
 	private synchronized void downloadApk(String url) {
 		try {
-			CLogU.Log(tag, "downloading...");
 			DownloadManager downloadManager = (DownloadManager) mContext.getSystemService(Context.DOWNLOAD_SERVICE);
 			String fileName = url.substring(url.lastIndexOf("/") + 1, url.length());
 			Uri resource = Uri.parse(url);
@@ -63,7 +57,6 @@ public class CADLThread extends Thread {
 			request.setTitle(fileName);
 			downloadManager.enqueue(request);
 		} catch (Exception e) {
-			CLogU.Log(tag, "downloading exception.");
 			e.printStackTrace();
 		}
 	}
@@ -135,7 +128,6 @@ public class CADLThread extends Thread {
 				}
 			} catch (Exception e) {
 				newURL = null;
-				CLogU.Log(tag, "exception in getRealDownloadURL");
 			}
 		}
 		return newURL;

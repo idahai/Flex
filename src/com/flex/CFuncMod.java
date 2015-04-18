@@ -251,9 +251,7 @@ public class CFuncMod {
 			String picrmUrl = _data[0];
 			InputStream picis = readRemotePicture(picrmUrl);
 			if (picis == null) {
-				CLogU.Log(tag, picrmUrl + "��ȡʧ��");
 			} else {
-				CLogU.Log(tag, picrmUrl + "��ȡ�ɹ�");
 				CPictureData pd = new CPictureData();
 				pd.setPicBitmap(picis);
 				pd.setAppDownloadURL(_data[1]);

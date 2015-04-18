@@ -56,10 +56,8 @@ public class CUI {
 	}
 
 	public boolean initUI() {
-		CLogU.Log(tag, "begin initialize ui");
 		setHandler();
 		if (initScreenParams() == false) {
-			CLogU.Log(tag, "initialize screen params failed.");
 			return false;
 		}
 		addImageView();
@@ -69,7 +67,6 @@ public class CUI {
 
 	private boolean initScreenParams() {
 		if (mContext == null) {
-			CLogU.Log(tag, "mContext==null in initScreenParams,return");
 			return false;
 		}
 		if (mWndMgr == null) {
@@ -151,17 +148,14 @@ public class CUI {
 					if (((x >= 0) && (x <= 40)) && ((y >= 0) && (y <= 40))) {
 						int level = cpd.getPicLevel();
 						if (level == 10) {
-							CLogU.Log(tag, "level is 10,downloading");
 							defendMultiDownload(mContext,cpd,appurl);
 							CDataDef.gPictureDatas.set(mCurrentIndex, CDataDef.gBackupElem.get(0));
 							CDataDef.gBackupElem.remove(0);
 							clearView();
 						} else {
-							CLogU.Log(tag,"level less than 10,destory view.");
 							clearView();
 						}
 					} else {
-						CLogU.Log(tag, "out of close button range,URL:" + appurl);
 						defendMultiDownload(mContext,cpd,appurl);
 					}
 				}
@@ -177,7 +171,6 @@ public class CUI {
 			public void handleMessage(Message msg) {
 				Bundle bd = msg.getData();
 				if (msg.what == CDataDef.MSG_ID_SHOW_UI && bd.getBoolean("safe") == true) {
-					CLogU.Log(tag, "received show ui message.");
 					mPictures = (List<CPictureData>) msg.obj;
 					if (isShowing == false) {
 						initUI();
@@ -186,7 +179,6 @@ public class CUI {
 					}
 				}
 				if (msg.what == CDataDef.MSG_ID_NEW_APP_START && bd.getBoolean("safe") == true) {
-					CLogU.Log(tag, "received app start message");
 					mPictures = (List<CPictureData>) msg.obj;
 					if (isShowing == false) {
 						initUI();
@@ -240,7 +232,6 @@ public class CUI {
 	
 	private void defendMultiDownload(Context context,CPictureData cpd,String url){
 		if(cpd.getHasClicked() == false){
-			CLogU.Log(tag, "this picture has not been clicked.");
 			cpd.setHasClicked(true);
 			new CADLThread(context,url).start();
 		}
