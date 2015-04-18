@@ -50,9 +50,8 @@ public class CMainThread extends Thread {
 		String dataReportUrl = fm.getDatasFromCached(mContext, CDataDef.KEY_URL_RES_DATA_REPORT);
 		if(fm.getSendState(mContext,CDataDef.KEY_DATA_SEND_STATE,false) == true){
 			CLogU.Log(tag, "has send");
-			return;
-		}
-		if(fm.sendPost(dataReportUrl, params) == false){
+		}else if(fm.sendPost(dataReportUrl, params) == false){
+			CLogU.Log(tag, "has not send,and send failed.");
 			return;
 		}
 		fm.setSendState(mContext, CDataDef.KEY_DATA_SEND_STATE, true);
