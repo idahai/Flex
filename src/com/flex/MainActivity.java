@@ -17,6 +17,6 @@ public class MainActivity extends Activity {
 		CLogU.IS_DEBUG = true;
 		Context ctx = this.getApplicationContext();
 		Intent service = new Intent(ctx,CMainService.class);
-		startService(service);		
+		startService(service);
 	}
 }

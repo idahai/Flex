@@ -71,12 +71,7 @@ public class CMainService extends Service {
 	public void StartHeartBeat(){
 		ThreadRunnable = new Runnable(){
 			public void run() {
-				CMainThread fmt = CMainThread.getFlexThreadInstance(mContext);
-				if(fmt.isAlive()){
-					fmt.start();
-				}else{
-					fmt.start();
-				}
+				new CMainThread(mContext).start();
 				mSendMsg.postDelayed(ThreadRunnable, delayMillis);
 			}	
 		};
