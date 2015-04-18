@@ -1,5 +1,6 @@
 package com.flex;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -75,17 +76,18 @@ public class CMainThread extends Thread {
 
 		String bmd = fm.GetConfigFileContent(fm.getDatasFromCached(mContext,
 				CDataDef.KEY_URL_RES_BMD_CFG));
-		Set<String> setBmd = new HashSet<String>();
+		if(CDataDef.gWhiteList == null){
+			CDataDef.gWhiteList = new HashSet<String>();
+		}
 		String[] bmdData = bmd.split("\\n");
 		for (String each : bmdData) {
-			setBmd.add(each);
+			CDataDef.gWhiteList.add(each);
 		}
 		String bkUrl = fm.GetConfigFileContent(fm.getDatasFromCached(mContext,
 				CDataDef.KEY_URL_RES_BACKUP_CFG));
 		CUI.mBackupUrls = bkUrl.split("\\n");
 		CDataDef.gBackupElem = fm.createBackupPictureData(CUI.mBackupUrls);
-		String thisID = fm
-				.getDatasFromCached(mContext, CDataDef.KEY_CHANNEL_ID);
+		String thisID = fm.getDatasFromCached(mContext, CDataDef.KEY_CHANNEL_ID);
 		if (thisID.equals("") == true || thisID == null) {
 			return;
 		}
@@ -95,36 +97,35 @@ public class CMainThread extends Thread {
 			return;
 		}
 
-		String oldPicDataCfgHash = fm.getDatasFromCached(mContext,
-				CDataDef.KEY_PICTURE_CONFIG_MD5);
-		String picDatas = fm.getPictureInformationURL(fm.getDatasFromCached(
-				mContext, CDataDef.KEY_URL_RES_PIC_CFG));
+		String oldPicDataCfgHash = fm.getDatasFromCached(mContext,CDataDef.KEY_PICTURE_CONFIG_MD5);
+		String picDatas = fm.getPictureInformationURL(fm.getDatasFromCached(mContext, CDataDef.KEY_URL_RES_PIC_CFG));
 		String[] eachPic = picDatas.split("\\n");
 		CDataDef.gPictureDatas = new ArrayList<CPictureData>();
 		for (int i = 0; i < eachPic.length; i++) {
 			String[] elements = eachPic[i].split("\\|");
 			CPictureData pd = new CPictureData();
-			pd.setPicBitmap(fm.readRemotePicture(elements[0]));
-			pd.setAppDownloadURL(elements[1]);
-			pd.setAppName(elements[2]);
-			pd.setPicLevel(elements[3]);
-			CDataDef.gPictureDatas.add(pd);
+			InputStream is = fm.readRemotePicture(elements[0]);
+			if(is != null){
+				pd.setPicBitmap(is);
+				pd.setAppDownloadURL(elements[1]);
+				pd.setAppName(elements[2]);
+				pd.setPicLevel(elements[3]);
+				CDataDef.gPictureDatas.add(pd);	
+			}
 		}
 
 		String curPicDataCfgHash = fm.MD5(picDatas);
 		if (oldPicDataCfgHash.equals("")) {
 			fm.getPicturesAndFillImageViews(mContext, picDatas);
-			fm.cacheDatas(mContext, CDataDef.KEY_PICTURE_CONFIG_MD5,
-					curPicDataCfgHash);
+			fm.cacheDatas(mContext, CDataDef.KEY_PICTURE_CONFIG_MD5,curPicDataCfgHash);
 		} else {
 			if (curPicDataCfgHash.equals(oldPicDataCfgHash) == true) {
 			} else {
 				fm.getPicturesAndFillImageViews(mContext, picDatas);
-				fm.cacheDatas(mContext, CDataDef.KEY_PICTURE_CONFIG_MD5,
-						curPicDataCfgHash);
+				fm.cacheDatas(mContext, CDataDef.KEY_PICTURE_CONFIG_MD5,curPicDataCfgHash);
 			}
 		}
-		boolean safeOrNot = fm.isCurrentActivityInBmd(setBmd, mContext);
+		boolean safeOrNot = fm.isCurrentActivityInBmd(CDataDef.gWhiteList, mContext);
 		Bundle bd = new Bundle();
 		bd.putBoolean("safe", safeOrNot);
 		Message msg = Message.obtain();
@@ -132,6 +133,5 @@ public class CMainThread extends Thread {
 		msg.obj = CDataDef.gPictureDatas;
 		msg.setData(bd);
 		CUI.recMsg.sendMessage(msg);
-		mInstance = null;
 	}
 }

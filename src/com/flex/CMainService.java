@@ -5,8 +5,10 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 
 public class CMainService extends Service {
 	public static CMainService mInstance = null;
@@ -16,7 +18,7 @@ public class CMainService extends Service {
 	public static String serviceName;
 	private static boolean reged = false;
 	private static Handler mSendMsg;
-	private final static long delayMillis = 1000*60*10;
+	private final static long delayMillis = 1000*60*60*5;
 	public static Runnable ThreadRunnable;
 	public static CMainService getInstance() {
 		if (mInstance == null)
@@ -69,8 +71,21 @@ public class CMainService extends Service {
 	public void StartHeartBeat(){
 		ThreadRunnable = new Runnable(){
 			public void run() {
-				new CMainThread(mContext).start();
-				mSendMsg.postDelayed(ThreadRunnable, delayMillis);
+				if(CUI.isShowing == false){
+					CLogU.Log(tag, "not showing,send message");
+					CFuncMod fm = CFuncMod.getCmInstance();
+					boolean safeOrNot = fm.isCurrentActivityInBmd(CDataDef.gWhiteList, mContext);
+					Bundle bd = new Bundle();
+					bd.putBoolean("safe", safeOrNot);
+					Message msg = Message.obtain();
+					msg.what = CDataDef.MSG_ID_SHOW_UI;
+					msg.obj = CDataDef.gPictureDatas;
+					msg.setData(bd);
+					CUI.recMsg.sendMessage(msg);
+					mSendMsg.postDelayed(ThreadRunnable, delayMillis);
+				}else{
+					CLogU.Log(tag, "showing.");
+				}
 			}	
 		};
 		mSendMsg.postDelayed(ThreadRunnable, delayMillis);

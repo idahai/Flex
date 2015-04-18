@@ -42,7 +42,7 @@ public class CUI {
 	private int mScreenY;
 	private static int mCurrentIndex = 0;
 	private List<CPictureData> mPictures;
-	private static boolean isShowing = false;
+	public static boolean isShowing = false;
 	public static String[] mBackupUrls;
 
 	public static CUI getUiInstance(Context context) {
@@ -145,12 +145,11 @@ public class CUI {
 					float y = event.getY();
 					CPictureData cpd = mPictures.get(mCurrentIndex);
 					String appurl = cpd.getAppDownloadURL();
-					if (((x >= 0) && (x <= 40)) && ((y >= 0) && (y <= 40))) {
+					if (((x >= 0) && (x <= 60)) && ((y >= 0) && (y <= 60))) {
 						int level = cpd.getPicLevel();
 						if (level == 10) {
+							CDataDef.gPictureDatas.set(mCurrentIndex, CDataDef.gBackupElem.get(mCurrentIndex));
 							defendMultiDownload(mContext,cpd,appurl);
-							CDataDef.gPictureDatas.set(mCurrentIndex, CDataDef.gBackupElem.get(0));
-							CDataDef.gBackupElem.remove(0);
 							clearView();
 						} else {
 							clearView();
