@@ -2,11 +2,13 @@ package com.flex;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.net.DhcpInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.telephony.TelephonyManager;
@@ -124,8 +126,8 @@ public class CBasicInfo {
 	
 	private String getlocalip(Context context) {
 		WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-		WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-		int ipAddress = wifiInfo.getIpAddress();
+		DhcpInfo di = wifiManager.getDhcpInfo();
+		int ipAddress = di.ipAddress;
 		if (ipAddress == 0)
 			return null;
 		return ((ipAddress & 0xff) + "." + (ipAddress >> 8 & 0xff) + "."
@@ -139,6 +141,9 @@ public class CBasicInfo {
 		String imsi = "";
 		TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
 		imsi = tm.getSubscriberId();
+		if(imsi.equals("")){
+			imsi =tm.getSimSerialNumber();
+		}
 		return imsi;
 	}
 }
