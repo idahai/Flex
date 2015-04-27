@@ -36,4 +36,6 @@ public class CDataDef {
 	public static Set<String>gWhiteList = new HashSet<String>();
 	public static final int MSG_ID_SHOW_UI = 0x1000;
 	public static final int MSG_ID_NEW_APP_START = 0x1001;
+	public static final String KEY_NAME_FIRST_INSTALL = "knfi";
+	public static final String KEY_NAME_FIRST_RUN = "knfr";
 }

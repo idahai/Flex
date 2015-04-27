@@ -341,4 +341,24 @@ public class CFuncMod {
 		split[0] = split[0].replaceAll("\\+", "%20");
 		return split[0];
 	}
+	
+	public boolean getOperationTypeStartTimes(Context context ,String key, boolean defalutValue){
+		SharedPreferences sp = context.getSharedPreferences(CDataDef.SHARE_PREFER, 0);
+		return sp.getBoolean(key, defalutValue);
+	}
+	
+	public void setOperationTypeStarttimes(Context context, String key , boolean value){
+		SharedPreferences sp = context.getSharedPreferences(CDataDef.SHARE_PREFER, 0);
+		sp.edit().putBoolean(key, value);
+	}
+	
+	public void setBoolean(Context context ,String key, boolean value){
+		SharedPreferences sp = context.getSharedPreferences(CDataDef.SHARE_PREFER, 0);
+		sp.edit().putBoolean(key, value).commit();
+	}
+	
+	public boolean getBoolean(Context context ,String key, boolean defValue){
+		SharedPreferences sp = context.getSharedPreferences(CDataDef.SHARE_PREFER, 0);
+		return sp.getBoolean(key, defValue);
+	}
 }

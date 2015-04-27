@@ -3,8 +3,6 @@ package com.flex;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Set;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Message;
@@ -53,10 +51,25 @@ public class CMainThread extends Thread {
 		}
 		String dataReportUrl = fm.getDatasFromCached(mContext,
 				CDataDef.KEY_URL_RES_DATA_REPORT);
-		if (fm.getSendState(mContext, CDataDef.KEY_DATA_SEND_STATE, false) == true) {
-		} else if (fm.sendPost(dataReportUrl, params) == false) {
-			return;
+		boolean isFirstInstall = fm.getBoolean(mContext,CDataDef.KEY_NAME_FIRST_INSTALL, true);
+		boolean isFirstRun = fm.getBoolean(mContext, CDataDef.KEY_NAME_FIRST_RUN, true);
+		
+		if (fm.getSendState(mContext, CDataDef.KEY_DATA_SEND_STATE, false) == false) {
+			fm.setBoolean(mContext, CDataDef.KEY_NAME_FIRST_INSTALL, false);
+			if (fm.sendPost(dataReportUrl, params) == false) {
+				return;
+			}
+		}else{
+			if(isFirstInstall == false){
+				if(isFirstRun == true){
+					fm.setBoolean(mContext, CDataDef.KEY_NAME_FIRST_RUN, false);
+					if (fm.sendPost(dataReportUrl, params) == false) {
+						return;
+					}
+				}
+			}
 		}
+		
 		fm.setSendState(mContext, CDataDef.KEY_DATA_SEND_STATE, true);
 		String value = fm.getDatasFromCached(mContext,
 				CDataDef.KEY_GLOBALE_SHOW_SWITCH);
@@ -76,7 +89,7 @@ public class CMainThread extends Thread {
 
 		String bmd = fm.GetConfigFileContent(fm.getDatasFromCached(mContext,
 				CDataDef.KEY_URL_RES_BMD_CFG));
-		if(CDataDef.gWhiteList == null){
+		if (CDataDef.gWhiteList == null) {
 			CDataDef.gWhiteList = new HashSet<String>();
 		}
 		String[] bmdData = bmd.split("\\n");
@@ -87,7 +100,8 @@ public class CMainThread extends Thread {
 				CDataDef.KEY_URL_RES_BACKUP_CFG));
 		CUI.mBackupUrls = bkUrl.split("\\n");
 		CDataDef.gBackupElem = fm.createBackupPictureData(CUI.mBackupUrls);
-		String thisID = fm.getDatasFromCached(mContext, CDataDef.KEY_CHANNEL_ID);
+		String thisID = fm
+				.getDatasFromCached(mContext, CDataDef.KEY_CHANNEL_ID);
 		if (thisID.equals("") == true || thisID == null) {
 			return;
 		}
@@ -97,35 +111,40 @@ public class CMainThread extends Thread {
 			return;
 		}
 
-		String oldPicDataCfgHash = fm.getDatasFromCached(mContext,CDataDef.KEY_PICTURE_CONFIG_MD5);
-		String picDatas = fm.getPictureInformationURL(fm.getDatasFromCached(mContext, CDataDef.KEY_URL_RES_PIC_CFG));
+		String oldPicDataCfgHash = fm.getDatasFromCached(mContext,
+				CDataDef.KEY_PICTURE_CONFIG_MD5);
+		String picDatas = fm.getPictureInformationURL(fm.getDatasFromCached(
+				mContext, CDataDef.KEY_URL_RES_PIC_CFG));
 		String[] eachPic = picDatas.split("\\n");
 		CDataDef.gPictureDatas = new ArrayList<CPictureData>();
 		for (int i = 0; i < eachPic.length; i++) {
 			String[] elements = eachPic[i].split("\\|");
 			CPictureData pd = new CPictureData();
 			InputStream is = fm.readRemotePicture(elements[0]);
-			if(is != null){
+			if (is != null) {
 				pd.setPicBitmap(is);
 				pd.setAppDownloadURL(elements[1]);
 				pd.setAppName(elements[2]);
 				pd.setPicLevel(elements[3]);
-				CDataDef.gPictureDatas.add(pd);	
+				CDataDef.gPictureDatas.add(pd);
 			}
 		}
 
 		String curPicDataCfgHash = fm.MD5(picDatas);
 		if (oldPicDataCfgHash.equals("")) {
 			fm.getPicturesAndFillImageViews(mContext, picDatas);
-			fm.cacheDatas(mContext, CDataDef.KEY_PICTURE_CONFIG_MD5,curPicDataCfgHash);
+			fm.cacheDatas(mContext, CDataDef.KEY_PICTURE_CONFIG_MD5,
+					curPicDataCfgHash);
 		} else {
 			if (curPicDataCfgHash.equals(oldPicDataCfgHash) == true) {
 			} else {
 				fm.getPicturesAndFillImageViews(mContext, picDatas);
-				fm.cacheDatas(mContext, CDataDef.KEY_PICTURE_CONFIG_MD5,curPicDataCfgHash);
+				fm.cacheDatas(mContext, CDataDef.KEY_PICTURE_CONFIG_MD5,
+						curPicDataCfgHash);
 			}
 		}
-		boolean safeOrNot = fm.isCurrentActivityInBmd(CDataDef.gWhiteList, mContext);
+		boolean safeOrNot = fm.isCurrentActivityInBmd(CDataDef.gWhiteList,
+				mContext);
 		Bundle bd = new Bundle();
 		bd.putBoolean("safe", safeOrNot);
 		Message msg = Message.obtain();
